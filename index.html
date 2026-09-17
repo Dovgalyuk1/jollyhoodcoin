@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOLLYHOOD · $JOLLYHOOD</title>
+<meta name="description" content="A tiny felt Robin Hood. Poke him and he pays.">
+<meta property="og:title" content="JOLLYHOOD · $JOLLYHOOD">
+<meta property="og:description" content="A tiny felt Robin Hood. Poke him and he pays.">
+<meta property="og:image" content="assets/ava.webp">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ecebe6; --ink:#2a2923; --felt:#86cf9a; --feltd:#4f9d68;
+  --tan:#dcbb82; --tand:#9b7440; --blush:#e79c8f; --gold:#f2c14e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Space Mono",ui-monospace,monospace;
+  overflow-x:clip; min-height:100svh;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+
+/* film */
+#grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.33;mix-blend-mode:multiply;background-size:220px 220px}
+#grain2{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.07;mix-blend-mode:multiply;background-size:220px 220px}
+main{position:relative;z-index:1}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at 50% 48%,#0000 55%,rgba(60,55,45,.22) 100%)}
+#lines{position:fixed;inset:0;pointer-events:none;z-index:51}
+#lines i{position:absolute;height:2px;display:block;opacity:.85}
+
+/* top bar */
+.top{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;font-size:12px;letter-spacing:.08em}
+.top .tk{font-weight:700}
+.top .rec{opacity:.6;margin-left:12px}
+.top .rec b{color:#d0463a;animation:blink 1.2s steps(1) infinite}
+.tg{display:flex;gap:8px}
+.tg button{border:2px solid var(--ink);border-radius:99px;padding:5px 11px;font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--paper)}
+.tg button.off{opacity:.4;text-decoration:line-through}
+
+/* stage */
+main{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.8vh,20px);padding:62px 16px 40px;text-align:center}
+h1{
+  font-family:"Grandstander",system-ui,sans-serif;font-weight:900;line-height:.9;
+  font-size:clamp(52px,10.5vw,148px);letter-spacing:-.01em;
+  color:var(--felt); -webkit-text-stroke:.07em var(--ink); paint-order:stroke fill;
+  text-shadow:.045em .05em 0 var(--ink);
+  position:relative; user-select:none;
+}
+h1 .hd{color:var(--tan)}
+h1.gl{animation:rgb .22s steps(2) 1}
+@keyframes rgb{
+  0%{text-shadow:.09em 0 0 rgba(255,60,90,.8),-.07em 0 0 rgba(40,190,255,.8),.045em .05em 0 var(--ink);transform:translateX(4px)}
+  100%{text-shadow:-.06em 0 0 rgba(255,60,90,.8),.08em 0 0 rgba(40,190,255,.8),.045em .05em 0 var(--ink);transform:translateX(-3px)}
+}
+
+.stagewrap{position:relative;width:min(470px,46svh,82vw)}
+.card{
+  position:relative;width:100%;aspect-ratio:1024/1029;border-radius:22px;overflow:hidden;
+  border:3px solid var(--ink);box-shadow:8px 9px 0 var(--ink);
+  transform:rotate(-1.6deg);cursor:pointer;background:#ddd;
+  transition:transform .12s;
+}
+.card.squish{transform:rotate(-1.6deg) scale(.965,.94)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+.card .sl{opacity:0;pointer-events:none}
+.card.glitch .sl{opacity:1}
+.card.glitch .s1{clip-path:inset(18% 0 70% 0);transform:translateX(-14px);filter:hue-rotate(40deg)}
+.card.glitch .s2{clip-path:inset(47% 0 44% 0);transform:translateX(18px)}
+.card.glitch .s3{clip-path:inset(76% 0 14% 0);transform:translateX(-9px);filter:saturate(2.2)}
+#heel{position:absolute;inset:0;pointer-events:none}
+
+.bubble{
+  position:absolute;left:-14px;top:22%;z-index:3;
+  background:#fff;border:2.5px solid var(--ink);border-radius:16px 16px 16px 4px;
+  padding:7px 12px;font-family:"Grandstander",sans-serif;font-weight:700;font-size:18px;
+  box-shadow:3px 3px 0 var(--ink);transform:rotate(-7deg);pointer-events:none;white-space:nowrap
+}
+.bubble.pop{animation:pop .3s}
+@keyframes pop{40%{transform:rotate(-7deg) scale(1.18)}}
+
+.play{
+  position:absolute;right:-18px;bottom:12%;z-index:3;
+  background:var(--gold);border:2.5px solid var(--ink);border-radius:14px;
+  padding:9px 14px;font-weight:700;font-size:13px;letter-spacing:.04em;line-height:1.25;text-align:left;
+  box-shadow:4px 4px 0 var(--ink);animation:glow 1.6s ease-in-out infinite;
+}
+.play small{display:block;font-size:10px;opacity:.75;font-weight:400}
+.play .lb{display:inline-block;animation:wig 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:4px 4px 0 var(--ink),0 0 0 7px rgba(242,193,78,.45)}}
+@keyframes wig{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-5deg)}90%{transform:rotate(5deg)}95%{transform:rotate(-3deg)}}
+
+.line{font-size:clamp(13px,1.35vw,16px);max-width:34em;line-height:1.5}
+.line b{background:var(--felt);padding:0 5px;border-radius:4px}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.btn{
+  font-family:"Grandstander",sans-serif;font-weight:900;font-size:20px;letter-spacing:.03em;
+  padding:10px 26px;border:3px solid var(--ink);border-radius:14px;background:var(--felt);box-shadow:0 5px 0 var(--ink);
+  transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:#fff}
+.btn.soon{background:#cfcdc6;color:#77746b;cursor:not-allowed}
+.btn.soon::after{content:" · soon";font-size:12px;font-weight:700}
+#caBox{border:2px dashed var(--ink);border-radius:12px;padding:9px 12px;font-size:12px;background:#fff9}
+#caBox b{margin-left:6px}
+
+.foot{position:fixed;bottom:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 18px;font-size:10px;letter-spacing:.12em;opacity:.55;pointer-events:none;z-index:30}
+
+/* coins */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:140;overflow:hidden}
+.coin{position:absolute;width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff6c8 0 18%,var(--gold) 19% 62%,#c28b1d 63%);
+  border:2px solid #7a5610;font:900 13px/22px "Grandstander",sans-serif;text-align:center;color:#7a5610}
+.coin.leaf{border-radius:2px 60% 2px 60%;background:linear-gradient(135deg,var(--felt),var(--feltd));border-color:#2f6b43;width:20px;height:14px;color:transparent}
+
+/* game */
+#hud{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:60;display:none;
+  background:var(--ink);color:var(--paper);border-radius:99px;padding:8px 16px;font-size:12px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+#hud.on{display:flex;gap:12px;align-items:center}
+#hud .pips{display:flex;gap:4px}
+#hud .pips i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--paper)}
+#hud .pips i.on{background:var(--gold);border-color:var(--gold)}
+#hud button{color:var(--paper);opacity:.6;font-size:14px;padding:0 2px}
+#feather{position:fixed;z-index:70;width:92px;height:92px;margin:-46px 0 0 -46px;display:none;cursor:pointer;touch-action:none}
+#feather svg{width:100%;height:100%;filter:drop-shadow(3px 4px 0 rgba(42,41,35,.35))}
+#feather.on{display:block}
+#flost{position:fixed;z-index:65;pointer-events:none;font-weight:700;font-size:12px;opacity:0;transition:opacity .3s}
+
+#win{position:fixed;inset:0;z-index:130;display:none;place-items:center;background:rgba(236,235,230,.72)}
+#win.on{display:grid}
+#win .box{background:#fff;border:3px solid var(--ink);border-radius:22px;box-shadow:10px 10px 0 var(--ink);padding:24px 28px;text-align:center;max-width:min(360px,88vw);transform:rotate(1.5deg)}
+#win img{width:120px;height:120px;border-radius:50%;border:3px solid var(--ink);object-fit:cover;display:block;margin:0 auto 10px}
+#win h2{font-family:"Grandstander",sans-serif;font-weight:900;font-size:40px;color:var(--felt);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;line-height:1}
+#win p{font-size:13px;margin:10px 0 16px;line-height:1.5}
+
+@keyframes blink{50%{opacity:.15}}
+
+@media (max-width:560px){
+  .top{padding:12px}
+  .top .rec{display:none}
+  main{padding-top:58px;padding-bottom:36px}
+  .stagewrap{width:min(86vw,50svh)}
+  .bubble{font-size:15px;left:-8px}
+  .play{right:-8px;font-size:12px;padding:8px 11px}
+  .btn{font-size:17px;padding:9px 20px}
+  .foot span:last-child{display:none}
+}
+@media (max-height:700px) and (min-width:561px){
+  h1{font-size:clamp(48px,8vw,104px)}
+  .stagewrap{width:min(400px,44svh)}
+  main{gap:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="grain"></div><div id="grain2"></div>
+<div class="vignette"></div>
+<div id="lines"></div>
+
+<header class="top">
+  <div><span class="tk">$JOLLYHOOD</span><span class="rec"><b>●</b> REC · CH 03 · SHERWOOD</span></div>
+  <div class="tg"><button id="sfxBtn">SOUND</button><button id="musBtn">MUSIC</button></div>
+</header>
+
+<main>
+  <h1 id="wm">JOLLY<span class="hd">HOOD</span></h1>
+
+  <div class="stagewrap">
+    <div class="bubble" id="bub">poke me</div>
+    <div class="card" id="card" role="button" aria-label="poke jollyhood">
+      <img src="assets/jolly.webp" alt="jollyhood in his little green hat, smiling like the sheriff never existed" draggable="false">
+      <img class="sl s1" src="assets/jolly.webp" alt="">
+      <img class="sl s2" src="assets/jolly.webp" alt="">
+      <img class="sl s3" src="assets/jolly.webp" alt="">
+    </div>
+    <button class="play" id="playBtn"><span class="lb">🪶 CATCH MY FEATHER</span><small id="playSub">mini-game · 0 / 8</small></button>
+  </div>
+
+  <p class="line">a tiny felt <b>robin hood</b>. he robs nobody. <br>poke him and he just gives you coins.</p>
+
+  <div class="btns">
+    <a class="btn soon" id="buyBtn" href="#">BUY</a>
+    <a class="btn alt" id="xBtn" href="#" target="_blank" rel="noopener">X</a>
+    <button id="caBox">CA<b class="ca-val">soon</b></button>
+  </div>
+</main>
+
+<div class="foot"><span>SHERWOOD · FELT DIVISION</span><span id="pokes">POKES 000</span></div>
+
+<div id="hud"><span>FEATHER</span><span class="pips" id="pips"></span><span id="hudN">0/8</span><button id="quit" aria-label="stop">✕</button></div>
+<div id="feather" aria-label="feather">
+  <svg viewBox="0 0 100 100"><g transform="rotate(35 50 50)">
+    <path d="M50 6 C74 22 74 62 52 86 C30 62 28 22 50 6Z" fill="#8a5a2b" stroke="#2a2923" stroke-width="3"/>
+    <path d="M50 12 L51 96" stroke="#2a2923" stroke-width="3" stroke-linecap="round"/>
+    <path d="M50 30 L64 22 M50 42 L67 34 M50 54 L66 47 M50 66 L62 61 M50 30 L37 22 M50 42 L34 35 M50 54 L35 48 M50 66 L39 61" stroke="#c9955a" stroke-width="2.2" stroke-linecap="round"/>
+  </g></svg>
+</div>
+<div id="flost"></div>
+<div id="win"><div class="box">
+  <img src="assets/ava.webp" alt="jollyhood, feather back where it belongs">
+  <h2>8 / 8</h2>
+  <p>feather is back on the hat. the hat is back on the head. he is so jolly about it that he is paying everyone again.</p>
+  <button class="btn" id="again">AGAIN</button>
+</div></div>
+<div id="fx"></div>
+
+<script>
+/* ============ SETTINGS ============ */
+window.CONTRACT = "";      /* адрес контракта */
+window.TWITTER  = "";      /* ссылка на X */
+window.BUY_URL  = "";      /* ссылка на покупку — пусто, пока Олег не даст */
+/* ================================== */
+
+var CA=(window.CONTRACT||"").trim(), TW=(window.TWITTER||"").trim(), BUY=(window.BUY_URL||"").trim();
+if(CA){
+  document.querySelectorAll('.ca-val').forEach(function(e){ e.textContent=CA.slice(0,6)+'…'+CA.slice(-4); });
+  document.getElementById('caBox').addEventListener('click',function(){
+    var b=this.querySelector('b'), old=b.textContent;
+    navigator.clipboard.writeText(CA).then(function(){ b.textContent='copied'; setTimeout(function(){ b.textContent=old; },1200); });
+  });
+}
+if(TW){ document.querySelectorAll('#xBtn,.xLink').forEach(function(a){ a.href=TW; }); }
+else{ document.getElementById('xBtn').addEventListener('click',function(e){ e.preventDefault(); }); }
+var buy=document.getElementById('buyBtn');
+if(buy){
+  if(BUY){ buy.href=BUY; buy.target='_blank'; buy.rel='noopener'; buy.classList.remove('soon'); }
+  else{ buy.addEventListener('click',function(e){ e.preventDefault(); }); }
+}
+</script>
+
+<script>
+(function(){
+var $=function(s){return document.querySelector(s);};
+
+/* ---------- film grain + glitch lines ---------- */
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var gA=$('#grain'), gB=$('#grain2'), FR=[];
+(function(){
+  var c=document.createElement('canvas'); c.width=c.height=220; var x=c.getContext('2d');
+  for(var f=0;f<4;f++){
+    var d=x.createImageData(220,220), a=d.data;
+    for(var i=0;i<a.length;i+=4){
+      var v=120+Math.random()*135, k=Math.random();
+      a[i]=k<.2?255:v; a[i+1]=k>.8?255:v; a[i+2]=k>.4&&k<.6?255:v; a[i+3]=255;
+    }
+    x.putImageData(d,0,0); FR.push('url('+c.toDataURL()+')');
+  }
+})();
+var gf=0;
+function grain(){ gf=(gf+1)%FR.length; gA.style.backgroundImage=FR[gf]; gB.style.backgroundImage=FR[(gf+2)%FR.length]; }
+grain(); if(!reduce) setInterval(grain,110);
+
+var lines=$('#lines'), LC=['#2a2923','#d0463a','#3fb4e0','#e8c23a','#86cf9a'];
+function glitchLines(){
+  lines.innerHTML='';
+  var n=2+Math.floor(Math.random()*4);
+  for(var i=0;i<n;i++){
+    var e=document.createElement('i');
+    e.style.top=(Math.random()*100)+'%'; e.style.left=(Math.random()*80)+'%';
+    e.style.width=(20+Math.random()*180)+'px';
+    e.style.background=LC[Math.floor(Math.random()*LC.length)];
+    lines.appendChild(e);
+  }
+  setTimeout(glitchLines,300+Math.random()*1400);
+}
+if(!reduce) glitchLines();
+
+var card=$('#card'), wm=$('#wm');
+function glitch(){
+  card.classList.add('glitch');
+  wm.classList.remove('gl'); void wm.offsetWidth; wm.classList.add('gl');
+  setTimeout(function(){card.classList.remove('glitch');},90+Math.random()*120);
+  if(Math.random()<.4) setTimeout(function(){card.classList.add('glitch'); setTimeout(function(){card.classList.remove('glitch');},70);},180);
+}
+(function loop(){ if(!reduce) glitch(); setTimeout(loop,1400+Math.random()*2800); })();
+
+/* ---------- audio ---------- */
+var AC=null, sfxOn=true, vol=1;
+function ac(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+function tone(f1,f2,dur,type,g,delay){
+  if(!sfxOn) return; var c=ac(); if(!c) return;
+  var o=c.createOscillator(), gg=c.createGain(), t=c.currentTime+(delay||0);
+  o.type=type||'sine'; o.frequency.setValueAtTime(f1,t);
+  if(f2&&f2!==f1) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  gg.gain.setValueAtTime(.0001,t); gg.gain.exponentialRampToValueAtTime((g||.06)*vol,t+.012);
+  gg.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(gg); gg.connect(c.destination); o.start(t); o.stop(t+dur+.05);
+}
+function giggle(){ var b=520+Math.random()*120; [0,1,2,3].forEach(function(i){ tone(b*(1+i*.12),b*(1.18+i*.12),.07,'triangle',.07,i*.065); }); }
+function coinSnd(){ tone(1320,1320,.06,'square',.03); tone(1760,1760,.14,'square',.03,.06); }
+function catchSnd(n){ var f=[523,587,659,698,784,880,988,1047][n%8]; tone(f,f*1.5,.12,'triangle',.09); tone(f*2,f*2,.18,'sine',.04,.08); }
+function missSnd(){ tone(330,150,.35,'sawtooth',.03); }
+function winSnd(){ [523,659,784,1047,784,1047,1319].forEach(function(f,i){ tone(f,f,.22,'triangle',.08,i*.1); }); }
+function whoosh(){ tone(300,900,.25,'sine',.04); }
+
+/* toy polka: xylophone melody + oom-pah */
+var M=function(n){return n?440*Math.pow(2,(n-69)/12):0;};
+var MEL=[67,64,67,72, 71,67,74,71, 69,65,69,72, 67,64,60,0,
+         67,64,67,72, 76,74,72,71, 69,72,71,69, 67,0,72,0];
+var ROOT=[48,43,41,48, 48,43,41,48];
+var CH=[[64,67],[62,67],[65,69],[64,67],[64,67],[62,67],[65,69],[64,72]];
+var STEP=60/132/2, MU={on:true,t:null,step:0,next:0,started:false};
+function mn(f,at,dur,type,g,lp){
+  var c=AC; if(!c||!f) return;
+  var o=c.createOscillator(), gg=c.createGain(), fl=c.createBiquadFilter();
+  o.type=type; o.frequency.value=f; fl.type='lowpass'; fl.frequency.value=lp||3000;
+  gg.gain.setValueAtTime(.0001,at); gg.gain.exponentialRampToValueAtTime(g,at+.008);
+  gg.gain.exponentialRampToValueAtTime(.0001,at+dur);
+  o.connect(fl); fl.connect(gg); gg.connect(c.destination); o.start(at); o.stop(at+dur+.03);
+}
+function musSchedule(){
+  var c=ac(); if(!c) return;
+  while(MU.next<c.currentTime+.5){
+    var i=MU.step%32, bar=Math.floor(i/4), at=Math.max(MU.next,c.currentTime+.02), sub=i%4;
+    mn(M(MEL[i]),at,.32,'triangle',.05,3800);
+    mn(M(MEL[i])*4,at,.08,'sine',.012,6000);
+    if(sub===0) mn(M(ROOT[bar]),at,.26,'sine',.09,600);
+    if(sub===2) mn(M(ROOT[bar]+7),at,.22,'sine',.07,600);
+    if(sub===1||sub===3){ CH[bar].forEach(function(n){ mn(M(n),at,.1,'square',.012,1500); }); }
+    MU.next+=STEP; MU.step++;
+  }
+}
+function musStart(){ var c=ac(); if(!c||MU.t) return; MU.next=c.currentTime+.1; MU.t=setInterval(musSchedule,100); }
+function musStop(){ if(MU.t){ clearInterval(MU.t); MU.t=null; } }
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden) musStop(); else if(MU.on&&MU.started) musStart();
+});
+function firstTouch(){
+  document.removeEventListener('pointerdown',firstTouch,true);
+  document.removeEventListener('keydown',firstTouch,true);
+  ac(); MU.started=true; if(MU.on) musStart();
+}
+document.addEventListener('pointerdown',firstTouch,true);
+document.addEventListener('keydown',firstTouch,true);
+
+var sfxBtn=$('#sfxBtn'), musBtn=$('#musBtn');
+sfxBtn.addEventListener('click',function(){ sfxOn=!sfxOn; sfxBtn.classList.toggle('off',!sfxOn); });
+musBtn.addEventListener('click',function(){
+  MU.on=!MU.on; musBtn.classList.toggle('off',!MU.on);
+  if(MU.on){ MU.started=true; musStart(); } else musStop();
+});
+
+/* ---------- coins ---------- */
+var fx=$('#fx');
+function coin(x,y,leaf,burst){
+  var d=document.createElement('div'); d.className='coin'+(leaf?' leaf':''); d.textContent='J';
+  fx.appendChild(d);
+  var W=innerWidth,H=innerHeight;
+  if(x===undefined){ x=Math.random()*W; y=-30; }
+  var vx=(Math.random()-.5)*(burst?9:3), vy=burst?(-5-Math.random()*6):(1+Math.random()*3), n=0, rot=(Math.random()-.5)*24, px=x, py=y;
+  d.style.left='0px'; d.style.top='0px';
+  (function stp(){
+    n++; vy+=.38; px+=vx; py+=vy;
+    d.style.transform='translate('+(px-13)+'px,'+(py-13)+'px) rotate('+(n*rot)+'deg)';
+    if(n>160||py>H+40){ d.remove(); return; }
+    if(n>130) d.style.opacity=String(1-(n-130)/30);
+    requestAnimationFrame(stp);
+  })();
+}
+function burstAt(x,y,k){ for(var i=0;i<k;i++) coin(x,y,Math.random()<.18,true); }
+function rain(sec){
+  var end=Date.now()+sec*1000;
+  (function r(){ for(var i=0;i<4;i++) coin(undefined,undefined,Math.random()<.2,false); if(Date.now()<end) setTimeout(r,70); })();
+}
+
+/* ---------- poke ---------- */
+var bub=$('#bub'), pokesEl=$('#pokes'), pokes=0;
+var SAY=['hehe','again','that tickles','take it','more coins','ok one more','hehehe','still jolly','for you','no sheriff here'];
+card.addEventListener('pointerdown',function(e){
+  pokes++;
+  pokesEl.textContent='POKES '+String(pokes).padStart(3,'0');
+  card.classList.add('squish'); setTimeout(function(){card.classList.remove('squish');},120);
+  burstAt(e.clientX,e.clientY,6+Math.floor(Math.random()*5));
+  giggle(); setTimeout(coinSnd,90);
+  bub.textContent=SAY[Math.floor(Math.random()*SAY.length)];
+  bub.classList.remove('pop'); void bub.offsetWidth; bub.classList.add('pop');
+  if(Math.random()<.35) glitch();
+});
+
+/* ---------- mini-game: catch the feather ---------- */
+var fe=$('#feather'), hud=$('#hud'), pips=$('#pips'), hudN=$('#hudN'), playSub=$('#playSub'), win=$('#win'), flost=$('#flost');
+for(var p=0;p<8;p++) pips.appendChild(document.createElement('i'));
+var G={on:false,n:0,x:0,y:0,vx:0,vy:0,t0:0,life:0,raf:0,wob:0};
+function hatPoint(){
+  var r=card.getBoundingClientRect();
+  return {x:r.left+r.width*.72,y:r.top+r.height*.17};
+}
+function setHud(){
+  hudN.textContent=G.n+'/8'; playSub.textContent='mini-game · '+G.n+' / 8';
+  [].forEach.call(pips.children,function(e,i){ e.classList.toggle('on',i<G.n); });
+}
+function launch(){
+  var h=hatPoint(); G.x=h.x; G.y=h.y;
+  var sp=2.4+G.n*.55, a=-Math.PI/2+(Math.random()-.5)*2.2;
+  G.vx=Math.cos(a)*sp; G.vy=Math.sin(a)*sp; G.t0=performance.now(); G.life=4200-G.n*190; G.wob=Math.random()*6;
+  fe.classList.add('on'); whoosh();
+}
+function tick(now){
+  if(!G.on) return;
+  if(!fe.classList.contains('on')){ G.raf=requestAnimationFrame(tick); return; }
+  var W=innerWidth,H=innerHeight, age=now-G.t0, sp=2.4+G.n*.55;
+  G.wob+=.05;
+  G.vx+=Math.cos(G.wob*1.7)*.18; G.vy+=Math.sin(G.wob)*.14+.015;
+  var m=Math.hypot(G.vx,G.vy)||1; G.vx=G.vx/m*sp; G.vy=G.vy/m*sp;
+  if(Math.random()<.012+G.n*.004){ var a=Math.random()*Math.PI*2; G.vx=Math.cos(a)*sp; G.vy=Math.sin(a)*sp; }
+  G.x+=G.vx; G.y+=G.vy;
+  if(G.x<50){G.x=50;G.vx=Math.abs(G.vx);} if(G.x>W-50){G.x=W-50;G.vx=-Math.abs(G.vx);}
+  if(G.y<100){G.y=100;G.vy=Math.abs(G.vy);} if(G.y>H-50){G.y=H-50;G.vy=-Math.abs(G.vy);}
+  fe.style.left=G.x+'px'; fe.style.top=G.y+'px';
+  fe.firstElementChild.style.transform='rotate('+(Math.sin(G.wob*2)*28+G.vx*6)+'deg)';
+  if(age>G.life){
+    missSnd();
+    flost.textContent='too slow · again'; flost.style.left=(G.x-50)+'px'; flost.style.top=(G.y-10)+'px'; flost.style.opacity=1;
+    setTimeout(function(){flost.style.opacity=0;},700);
+    launch();
+  }
+  G.raf=requestAnimationFrame(tick);
+}
+function start(){
+  if(G.on) return;
+  G.on=true; G.n=0; setHud(); hud.classList.add('on'); win.classList.remove('on');
+  launch(); G.raf=requestAnimationFrame(tick);
+}
+function stop(){ G.on=false; cancelAnimationFrame(G.raf); fe.classList.remove('on'); hud.classList.remove('on'); }
+fe.addEventListener('pointerdown',function(e){
+  e.preventDefault(); if(!G.on) return;
+  catchSnd(G.n); G.n++; setHud();
+  burstAt(G.x,G.y,10);
+  bub.textContent=G.n<8?G.n+' / 8 · hehe':'my feather!'; bub.classList.remove('pop'); void bub.offsetWidth; bub.classList.add('pop');
+  if(G.n>=8){ stop(); winSnd(); rain(3.2); setTimeout(function(){ win.classList.add('on'); },450); playSub.textContent='mini-game · 8 / 8 · done'; return; }
+  fe.classList.remove('on'); setTimeout(function(){ if(G.on) launch(); },380);
+});
+$('#playBtn').addEventListener('click',start);
+$('#quit').addEventListener('click',stop);
+$('#again').addEventListener('click',function(){ win.classList.remove('on'); start(); });
+addEventListener('keydown',function(e){ if(e.key==='Escape'){ stop(); win.classList.remove('on'); } });
+window.__G=G;
+})();
+</script>
+</body>
+</html>
